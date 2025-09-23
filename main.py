@@ -1,6 +1,7 @@
 import time
 import random
 
+
 class Robot:
 
     def __init__(self):
@@ -8,12 +9,11 @@ class Robot:
 
     def moving(self, s_x, p_y):
         local_map = self.look_around()
-        delta_x = random.randint(-1,1)
-        delta_y = random.randint(-1,1)
+        delta_x = -1
+        delta_y = 0
         d_x = 0
         d_y = 0
-        return d_x+delta_x, d_y+delta_y
-
+        return d_x + delta_x, d_y + delta_y
 
     def look_around(self):
         self.local_map = []
@@ -23,13 +23,13 @@ class Robot:
             row = []
             row_c = []
             for x in range(len(global_map[y])):
-                if y in range(robot[0][1]-1, robot[0][1]+2) and x in range(robot[0][2]-1, robot[0][2]+2):
+                if y in range(robot[0][1] - 1, robot[0][1] + 2) and x in range(robot[0][2] - 1, robot[0][2] + 2):
                     if y == robot[0][1] and x == robot[0][2]:
                         row.append(1)
-                        row_c.append([x,y])
+                        row_c.append([x, y])
                     else:
                         row.append(global_map[y][x])
-                        row_c.append([x,y])
+                        row_c.append([x, y])
             if len(row) != 0:
                 self.local_map.append(row)
                 self.local_map.append(row_c)
@@ -67,14 +67,16 @@ class World:
     def step(self):
         for r in self.robot_list:
             print(*r[0].look_around())
-            x = r[1]
-            y = r[2]
+            y = r[1]
+            x = r[2]
             d_x, d_y = r[0].moving(x, y)
-            if len(self.map)-1 > y and len(self.map[0])-1 > x: # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
-                r[1] += d_x
-                r[2] += d_y
+            if 1 <= y <= len(self.map)-2 and 1 <= x <= len(self.map[0])-2:  # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
+                r[1] += d_y
+                r[2] += d_x
             else:
-               exit()
+                print(x)
+                exit()
+
 
 
 # реализовать, чтобы он не убегал за края карты, в рамках step (done)
