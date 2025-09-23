@@ -8,11 +8,17 @@ class Robot:
         self.local_map = []
 
     def moving(self, s_x, p_y):
-        local_map = self.look_around()
-        delta_x = -1
-        delta_y = 0
         d_x = 0
         d_y = 0
+        delta_x, delta_y = 0, 0
+        local_map = self.look_around()
+        print('----------------')
+        for row in local_map:
+            print(*row)
+        if local_map[0][1] == 'X':
+            delta_x = -1
+        else:
+            delta_y = -1
         return d_x + delta_x, d_y + delta_y
 
     def look_around(self):
@@ -26,13 +32,13 @@ class Robot:
                 if y in range(robot[0][1] - 1, robot[0][1] + 2) and x in range(robot[0][2] - 1, robot[0][2] + 2):
                     if y == robot[0][1] and x == robot[0][2]:
                         row.append(1)
-                        row_c.append([x, y])
+                        # row_c.append([x, y])
                     else:
                         row.append(global_map[y][x])
                         row_c.append([x, y])
             if len(row) != 0:
                 self.local_map.append(row)
-                self.local_map.append(row_c)
+                # self.local_map.append(row_c)
         return self.local_map
 
 
@@ -42,9 +48,18 @@ class Robot:
 class World:
 
     def __init__(self, width, length):
-        self.map = [[0] * width for _ in range(length)]
+        self.map = self.create_world(width, length)
         self.robot_list = []
-        self.obstacle = []
+
+
+    def create_world(self, width, length):
+        world = [[0] * width for _ in range(length)]
+        obstacle = [[3, 2], [5, 2], [3, 4], [5, 4]]
+        for y in range(length):
+            for x in range(width):
+                if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:
+                    world[y][x] = 'X'
+        return world
 
     def add_robot(self, x, y):
         robot = [Robot(), x, y]
@@ -66,21 +81,20 @@ class World:
 
     def step(self):
         for r in self.robot_list:
-            print(*r[0].look_around())
+            # print(*r[0].look_around())
             y = r[1]
             x = r[2]
             d_x, d_y = r[0].moving(x, y)
-            if 1 <= y <= len(self.map)-2 and 1 <= x <= len(self.map[0])-2:  # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
+            if 1 <= y <= len(self.map) - 2 and 1 <= x <= len(
+                    self.map[0]) - 2:  # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
                 r[1] += d_y
                 r[2] += d_x
             else:
-                print(x)
                 exit()
 
 
-
 # реализовать, чтобы он не убегал за края карты, в рамках step (done)
-# И чтобы робот не втыкался в препятсвия
+# И чтобы робот не втыкался в препятсвия (done)
 # Передавать роботу локальную карту (маленький кусочек) (done)
 
 world1 = World(10, 10)
