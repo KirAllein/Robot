@@ -23,31 +23,29 @@ class Robot:  # Класс робота
         print('----------------')  # Это я черту печатаю, чтобы отделять вывод Мира от локальной карты робота
         for row in local_map:  # Печатаю построчно карту робота, чтобы знать, что он видит
             print(*row)
-        if len(local_map) == 3 and len(local_map[0]) == 3:
-            if (local_map[0][1] != 0 and local_map[1][0] == 0) or (
-                    local_map[0][0] != 0 and local_map[0][0] != 1 and local_map[1][
-                0] == 0):  # Если перед роботом препятсивие
-                # или слева вверху есть препятствие, но при этом впереди свободно, делаем шаг влево
+        if len(local_map[y_r]) == 3 and len(local_map) == 3:
+            if (local_map[y_r-1][x_r] != 0  and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
+                                                                                             local_map[y_r][x_r-1] == 0):
                 delta_x = -1  # шаг влево
-            elif (local_map[2][0] != 0 or local_map[1][0] != 0) and local_map[2][
-                1] == 0:  # если слева внизу или слева препятствие, то делаем шаг вниз
-                delta_y = 1  # шаг вниз
-            elif ((local_map[2][2] != 0 or local_map[2][1] != 0) and local_map[1][
-                2] == 0):  # если справа внизу или под роботом есть препятствие
-                # и при этом справа свободно, то делаем шаг вправо
+            elif ((local_map[y_r+1][x_r] != 0 or local_map[y_r+1][x_r+1] != 0 or (x_r !=1 and y_r==0)) and local_map[y_r][x_r+1] == 0)\
+                    or (y_r == 0 and x_r != 2 and local_map[y_r][x_r+1] == 0):
                 delta_x = 1  # шаг вправо
-            else:
-                delta_y = -1  # Шаг вверх. Во всех остальных случаях шагаем на север
+            elif (local_map[y_r+1][x_r-1] != 0 or local_map[y_r][x_r-1] != 0 or x_r == 2) and local_map[y_r+1][x_r] ==0:
+                delta_y = 1 # шаг вниз
+            elif local_map[y_r-1][x_r] == 0 and y_r == 1 and x_r == 1:
+                delta_y = -1 # шаг вверх
         else:
-            if (x_r == 1 and y_r == 0 and len(local_map[y_r]) == 3) or (x_r == 0 and y_r == 0):
+            if ((x_r == 1 and y_r == 0 and len(local_map[y_r]) == 3) or (x_r == 0 and y_r == 0)) and local_map[y_r][x_r+1] == 0:
                 delta_x = 1  # шаг вправо
-            elif (x_r == 1 and y_r == 1 and len(local_map) == 3) or (
-                    x_r == 1 and y_r == 0 and len(local_map[y_r]) == 2):
-                delta_y = 1  # шаг вниз
-            elif (x_r == 1 and y_r == 1) or (x_r == 1 and y_r == 0) and len(local_map) == 2:
-                delta_x = -1  # шаг влево
-            else:
-                delta_y = -1  # шаг вверх
+                print(y_r,)
+            elif (x_r == 1 and y_r == 0 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map) == 3) \
+                    and local_map[y_r+1][x_r] == 0:
+                delta_y = 1 # шаг вниз
+            elif (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 3) \
+                and local_map[y_r][x_r+1] == 0:
+                    delta_x = -1  # шаг влево
+            elif (x_r == 0 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 0 and y_r == 1 and len(local_map)  == 3):
+                delta_y = -1 # шаг вверх
         return d_x + delta_x, d_y + delta_y  # возвращаем измененные значения координат на соответствующую дельту
 
     def look_around(self):  # функция, где робот смотрит вокруг себя
@@ -66,14 +64,17 @@ class World:  # Класс Мира
         for y in range(length):
             for x in range(width):
                 if len(obstacle) != 0:
-                    if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][
-                        1]:  # рисуем препятствие
+                    if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:  # рисуем препятствие
                         world[y][x] = 'X'  # препятствие у нас обозначено буквой х
 
-        # world[0][5] = 'X'
-        # world[1][5] = 'X'
-        # world[2][5] = 'X'
-        # world[3][5] = 'X'
+        world[0][2] = 'X'
+        # world[1][2] = 'X'
+        # world[2][2] = 'X'
+        world[9][4] = 'X'
+        # world[0][6] = 'X'
+        # world[1][6] = 'X'
+        # world[2][6] = 'X'
+        # world[3][6] = 'X'
         # world[0][2] = 'X'
         # world[1][2] = 'X'
         # world[2][2] = 'X'
@@ -130,8 +131,8 @@ class World:  # Класс Мира
         return robot_position
 
 
-world1 = World(10, 10,[[3,4], [5,3], [3,6], [5,6]])
-world1.add_robot(8, 4)
+world1 = World(10, 10,)
+world1.add_robot(1,0)
 world1.get_robot_list()
 print()
 while True:
@@ -150,8 +151,11 @@ while True:
 # 5. Нельзя создать Мир без препятствий (Fixed)
 # 6. Локальная карта передается роботу из класса Мир, и робот довольствуется только тем, что ему передано (Done)
 # 7. Ошибка при приближении к границе Мира (Done)
-# 8. Если доходим до края Мира, это должно восприниматся как препятствие (Dnoe)
+# 8. Если доходим до края Мира, это должно восприниматся как препятствие (Done)
 # 9. Проверка наличия препятствия ориентирует только на латинскую буквы X (Done)
 # 10. Робот не видит дыру в заборе
 # 11. Научить робота ходить по диагонале
 # 12. Робот проходит сквозь препятствие слева
+
+
+# 13. Робот проходит сквозь препятствие, если движется по краю
