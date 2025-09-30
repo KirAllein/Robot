@@ -24,7 +24,9 @@ class Robot:  # Класс робота
         for row in local_map:  # Печатаю построчно карту робота, чтобы знать, что он видит
             print(*row)
         if len(local_map[y_r]) == 3 and len(local_map) == 3:
-            if (local_map[y_r-1][x_r] != 0  and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
+            if local_map[y_r - 1][x_r] == 0 and y_r == 1 and x_r == 1:
+                delta_y = -1  # шаг вверх
+            elif (local_map[y_r-1][x_r] != 0 and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
                                                                                              local_map[y_r][x_r-1] == 0):
                 delta_x = -1  # шаг влево
             elif ((local_map[y_r+1][x_r] != 0 or local_map[y_r+1][x_r+1] != 0 or (x_r !=1 and y_r==0)) and local_map[y_r][x_r+1] == 0)\
@@ -32,19 +34,17 @@ class Robot:  # Класс робота
                 delta_x = 1  # шаг вправо
             elif (local_map[y_r+1][x_r-1] != 0 or local_map[y_r][x_r-1] != 0 or x_r == 2) and local_map[y_r+1][x_r] ==0:
                 delta_y = 1 # шаг вниз
-            elif local_map[y_r-1][x_r] == 0 and y_r == 1 and x_r == 1:
-                delta_y = -1 # шаг вверх
         else:
             if ((x_r == 1 and y_r == 0 and len(local_map[y_r]) == 3) or (x_r == 0 and y_r == 0)) and local_map[y_r][x_r+1] == 0:
                 delta_x = 1  # шаг вправо
-                print(y_r,)
             elif (x_r == 1 and y_r == 0 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map) == 3) \
                     and local_map[y_r+1][x_r] == 0:
                 delta_y = 1 # шаг вниз
             elif (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 3) \
-                and local_map[y_r][x_r+1] == 0:
+                and local_map[y_r][x_r-1] == 0:
                     delta_x = -1  # шаг влево
-            elif (x_r == 0 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 0 and y_r == 1 and len(local_map)  == 3):
+            elif (x_r == 0 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 0 and y_r == 1 and len(local_map)  == 3)\
+                    and local_map[y_r-1][x_r] == 0:
                 delta_y = -1 # шаг вверх
         return d_x + delta_x, d_y + delta_y  # возвращаем измененные значения координат на соответствующую дельту
 
@@ -67,23 +67,28 @@ class World:  # Класс Мира
                     if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:  # рисуем препятствие
                         world[y][x] = 'X'  # препятствие у нас обозначено буквой х
 
-        world[0][2] = 'X'
+
+        # world[9][4] = 'X'
         # world[1][2] = 'X'
         # world[2][2] = 'X'
-        world[9][4] = 'X'
+        # world[9][4] = 'X'
         # world[0][6] = 'X'
         # world[1][6] = 'X'
         # world[2][6] = 'X'
         # world[3][6] = 'X'
         # world[0][2] = 'X'
-        # world[1][2] = 'X'
-        # world[2][2] = 'X'
+        # world[6][3] = 'X'
+        # world[6][5] = 'X'
 
         return world
 
-    def add_robot(self, x, y):
-        robot = [Robot(), x, y]  # добавляем робота в Мир
-        self.robot_list.append(robot)
+    def add_robot(self, y, x, world_name):
+        robot = [Robot(), y, x]  # добавляем робота в Мир
+        if self.map[y][x] == 0: # проверка свободна ли клетка, куда хотим добавить робота
+            self.robot_list.append(robot)
+        else:
+            self.robot_list.append([Robot(), 8, 8])
+
 
     def draw_map(self):  # Класс рисования Мира
         c_y = self.robot_list[0][1]  # координата робота у
@@ -131,8 +136,8 @@ class World:  # Класс Мира
         return robot_position
 
 
-world1 = World(10, 10,)
-world1.add_robot(1,0)
+world1 = World(10, 10,[[3,4],[5,4],[3,6],[5,6]])
+world1.add_robot(8,4, world1)
 world1.get_robot_list()
 print()
 while True:
@@ -144,7 +149,7 @@ while True:
     time.sleep(2)
 
 # Список замечаний:
-# 1. Робот добавляется на поле препятствия
+# 1. Робот добавляется на поле препятствия (условно поправил)
 # 2. Код останавливается, когда робот попадает на край препятствия
 # 3. Отображается только 1 робот, остальные роботы не отображаются
 # 4. Препятствие захардкожена в классе Мир. (Fixed)
@@ -158,4 +163,4 @@ while True:
 # 12. Робот проходит сквозь препятствие слева
 
 
-# 13. Робот проходит сквозь препятствие, если движется по краю
+# 13. Робот проходит сквозь препятствие, если движется по краю (fixed)
