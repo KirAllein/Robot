@@ -5,7 +5,7 @@ class Robot:  # Класс робота
 
     def __init__(self):
         self.local_map = []
-
+        self.note = []
     def moving(self, s_x, p_y):  # функция движения робота
         d_x = 0  # переменная в которой храним значение координаты х робота
         d_y = 0  # переменная в которой храним значение координаты у робота
@@ -23,17 +23,22 @@ class Robot:  # Класс робота
         print('----------------')  # Это я черту печатаю, чтобы отделять вывод Мира от локальной карты робота
         for row in local_map:  # Печатаю построчно карту робота, чтобы знать, что он видит
             print(*row)
+            if row != [0,0,0] and row != [0,1,0]:
+                self.note.append(local_map)
+        if len(self.note) > 1 and local_map == self.note[0]:
+            exit()
+
         if len(local_map[y_r]) == 3 and len(local_map) == 3:
-            if local_map[y_r - 1][x_r] == 0 and y_r == 1 and x_r == 1:
-                delta_y = -1  # шаг вверх
-            elif (local_map[y_r-1][x_r] != 0 and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
+            if (local_map[y_r-1][x_r] != 0 and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
                                                                                              local_map[y_r][x_r-1] == 0):
                 delta_x = -1  # шаг влево
             elif ((local_map[y_r+1][x_r] != 0 or local_map[y_r+1][x_r+1] != 0 or (x_r !=1 and y_r==0)) and local_map[y_r][x_r+1] == 0)\
-                    or (y_r == 0 and x_r != 2 and local_map[y_r][x_r+1] == 0):
+                    or (y_r == 0 and x_r != 2 and local_map[y_r][x_r+1] == 0) or (local_map[y_r][x_r+1] == 0 and local_map[y_r+1][x_r+1] != 0):
                 delta_x = 1  # шаг вправо
             elif (local_map[y_r+1][x_r-1] != 0 or local_map[y_r][x_r-1] != 0 or x_r == 2) and local_map[y_r+1][x_r] ==0:
                 delta_y = 1 # шаг вниз
+            elif local_map[y_r - 1][x_r] == 0 and y_r == 1 and x_r == 1:
+                delta_y = -1  # шаг вверх
         else:
             if ((x_r == 1 and y_r == 0 and len(local_map[y_r]) == 3) or (x_r == 0 and y_r == 0)) and local_map[y_r][x_r+1] == 0:
                 delta_x = 1  # шаг вправо
