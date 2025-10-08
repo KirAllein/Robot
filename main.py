@@ -5,57 +5,29 @@ class Robot:  # Класс робота
 
     def __init__(self):
         self.local_map = []
-        self.note = []
-    def moving(self, s_x, p_y):  # функция движения робота
-        d_x = 0  # переменная в которой храним значение координаты х робота
-        d_y = 0  # переменная в которой храним значение координаты у робота
-        delta_x, delta_y = 0, 0  # Сюда будем передавать значения изменения координаты
-        local_map = self.look_around()  # Запрашиваем карту вокруг робота
-        x_r = -1
-        y_r = -1
-        for i, row in enumerate(local_map):
-            try:
-                x_r = row.index(1)
-                y_r = i
-                break
-            except ValueError:
-                continue
-        print('----------------')  # Это я черту печатаю, чтобы отделять вывод Мира от локальной карты робота
-        for row in local_map:  # Печатаю построчно карту робота, чтобы знать, что он видит
+        self.direction = 0
+
+    def moving(self, global_x, global_y, local_map):  # функция движения робота
+        directions = [[0,-1],[1,0],[0,1],[-1,0]]
+        if self.direction == 0:
+            if local_map[0][1] != 0:
+                self.direction += 1
+        if self.direction == 1:
+            if local_map [1][2] != 0:
+                self.direction += 1
+        if self.direction == 2:
+            if local_map[2][1] != 0:
+                self.direction += 1
+        if self.direction == 3:
+            if local_map[1][0] != 0:
+                self.direction = 0
+        print(self.direction)
+        print('___________________________________________________')
+        for row in local_map:
             print(*row)
-            if row != [0,0,0] and row != [0,1,0]:
-                self.note.append(local_map)
-        if len(self.note) > 1 and local_map == self.note[0]:
-            exit()
+        print(directions[self.direction])
+        return directions[self.direction] # возвращаем измененные значения координат на соответствующую дельту
 
-        if len(local_map[y_r]) == 3 and len(local_map) == 3:
-            if (local_map[y_r-1][x_r] != 0 and x_r == 1 and local_map[y_r][x_r-1] == 0) or (local_map[y_r-1][x_r-1] != 0 and
-                                                                                             local_map[y_r][x_r-1] == 0):
-                delta_x = -1  # шаг влево
-            elif ((local_map[y_r+1][x_r] != 0 or local_map[y_r+1][x_r+1] != 0 or (x_r !=1 and y_r==0)) and local_map[y_r][x_r+1] == 0)\
-                    or (y_r == 0 and x_r != 2 and local_map[y_r][x_r+1] == 0) or (local_map[y_r][x_r+1] == 0 and local_map[y_r+1][x_r+1] != 0):
-                delta_x = 1  # шаг вправо
-            elif (local_map[y_r+1][x_r-1] != 0 or local_map[y_r][x_r-1] != 0 or x_r == 2) and local_map[y_r+1][x_r] ==0:
-                delta_y = 1 # шаг вниз
-            elif local_map[y_r - 1][x_r] == 0 and y_r == 1 and x_r == 1:
-                delta_y = -1  # шаг вверх
-        else:
-            if ((x_r == 1 and y_r == 0 and len(local_map[y_r]) == 3) or (x_r == 0 and y_r == 0)) and local_map[y_r][x_r+1] == 0:
-                delta_x = 1  # шаг вправо
-            elif (x_r == 1 and y_r == 0 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map) == 3) \
-                    and local_map[y_r+1][x_r] == 0:
-                delta_y = 1 # шаг вниз
-            elif (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 1 and y_r == 1 and len(local_map[y_r]) == 3) \
-                and local_map[y_r][x_r-1] == 0:
-                    delta_x = -1  # шаг влево
-            elif (x_r == 0 and y_r == 1 and len(local_map[y_r]) == 2) or (x_r == 0 and y_r == 1 and len(local_map)  == 3)\
-                    and local_map[y_r-1][x_r] == 0:
-                delta_y = -1 # шаг вверх
-        return d_x + delta_x, d_y + delta_y  # возвращаем измененные значения координат на соответствующую дельту
-
-    def look_around(self):  # функция, где робот смотрит вокруг себя
-        self.local_map = world1.determine_robot_position(0)  # вызов функции из Мира, передающей локальную карту
-        return self.local_map
 
 
 class World:  # Класс Мира
@@ -64,7 +36,10 @@ class World:  # Класс Мира
         self.map = self.create_world(width, length, obstacle)
         self.robot_list = []
 
+
     def create_world(self, width, length, obstacle):
+        self.width = width
+        self.length = length
         world = [[0] * width for _ in range(length)]  # создаем поле размерами ширина х высота
         for y in range(length):
             for x in range(width):
@@ -73,17 +48,18 @@ class World:  # Класс Мира
                         world[y][x] = 'X'  # препятствие у нас обозначено буквой х
 
 
-        # world[9][4] = 'X'
-        # world[1][2] = 'X'
-        # world[2][2] = 'X'
-        # world[9][4] = 'X'
-        # world[0][6] = 'X'
-        # world[1][6] = 'X'
-        # world[2][6] = 'X'
-        # world[3][6] = 'X'
-        # world[0][2] = 'X'
+        world[2][3] = 'X'
+        world[2][4] = 'X'
+        world[2][5] = 'X'
+        world[2][6] = 'X'
+        world[2][2] = 'X'
         # world[6][3] = 'X'
+        # world[7][3] = 'X'
+        # world[4][5] = 'X'
+        # world[5][5] = 'X'
         # world[6][5] = 'X'
+        # world[7][5] = 'X'
+
 
         return world
 
@@ -92,7 +68,7 @@ class World:  # Класс Мира
         if self.map[y][x] == 0: # проверка свободна ли клетка, куда хотим добавить робота
             self.robot_list.append(robot)
         else:
-            self.robot_list.append([Robot(), 8, 8])
+            print('ERROR')
 
 
     def draw_map(self):  # Класс рисования Мира
@@ -110,39 +86,52 @@ class World:  # Класс Мира
         return self.robot_list
 
     def step(self):  # функция, где робот делает шаг в Мире
-        for r in self.robot_list:  # обращаемя к списку роботов
+        for i, r in enumerate(self.robot_list):  # обращаемя к списку роботов
             y = r[1]  # изначальна координата у
             x = r[2]  # значальна координата х
-            d_x, d_y = r[0].moving(x, y)  # Робот принимает решение о движении
-            if 0 <= y <= len(self.map) - 1 and 0 <= x <= len(
-                    self.map[0]) - 1:  # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
-                r[1] += d_y  # Передаем новое значение у
-                r[2] += d_x  # передаем новое значение х
-            else:
-                exit()
+            d_x, d_y = r[0].moving(x, y, self.determine_robot_position(i))  # Робот принимает решение о движении
+            # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
+            r[1] += d_y  # Передаем новое значение у
+            r[2] += d_x  # передаем новое значение х
+            print(r[1],r[2])
+            if r[1] < 0:
+                r[1] = 0
+            if r[2] < 0:
+                r[2] = 0
+            if r[1] >= self.length:
+                r[1] = self.length - 1
+            if r[2] >= self.width:
+                r[2] = self.width - 1  # Не даем роботу выйти за края
+            if self.map[r[1]][r[2]] != 0:
+                r[1],r[2] = y, x
+
 
     def determine_robot_position(self, robot_num):
-        robot_position = []
+        robot_map = [['X','X','X'],['X','X','X'],['X','X','X']]
+        # Сделать так, чтобы граница карты предствлялась как препятствие и через for заполняем клеточки относительно положения робота
         global_map = world1.map  # запрашиваем глобальную карту
-        robot = world1.get_robot_list()[
-            robot_num]  # запрашиваем список роботов, откуда возьмем информацию о нужном нам роботе
-        for y in range(len(global_map)):
-            row = []  # переменная, куда будет класть отдельные строки карты
-            for x in range(len(global_map[y])):
-                if y in range(robot[1] - 1, robot[1] + 2) and x in range(robot[2] - 1,
-                                                                         robot[2] + 2):  # проверяем находится ли точка
-                    # вокруг робота (то есть может ли робот видеть эту зону)
-                    if y == robot[1] and x == robot[2]:  # проверяем соответствует ли точка координатам робота
-                        row.append(1)  # если соответствует, то добавляем на карту самого робота, он обозначен 1
-                    else:
-                        row.append(global_map[y][x])  # в остальных случаях добавляем точки вокруг робота
-            if len(row) != 0:  # пустые строки не добавляем, нужны только те, что видит робот
-                robot_position.append(row)
-        return robot_position
+        robot = world1.get_robot_list()[robot_num]  # запрашиваем список роботов, откуда возьмем информацию о нужном нам роботе
+        r_x = robot[2]
+        r_y = robot[1]
+        for y in range(3):
+            for x in range(3):
+                g_x = r_x - 1 + x
+                g_y = r_y - 1 + y
+                if g_x < 0:
+                    continue
+                if g_y < 0:
+                    continue
+                if g_x >= self.width:
+                    continue
+                if g_y >= self.length:
+                    continue
+                robot_map[y][x] = global_map[g_y][g_x]
+                robot_map[1][1] = 'R'
+        return robot_map
 
 
-world1 = World(10, 10,[[3,4],[5,4],[3,6],[5,6]])
-world1.add_robot(8,4, world1)
+world1 = World(10, 5)
+world1.add_robot(4,4, world1)
 world1.get_robot_list()
 print()
 while True:
@@ -157,6 +146,7 @@ while True:
 # 1. Робот добавляется на поле препятствия (условно поправил)
 # 2. Код останавливается, когда робот попадает на край препятствия
 # 3. Отображается только 1 робот, остальные роботы не отображаются
+# 3/1. Нельзя отрисовать Мир без робота
 # 4. Препятствие захардкожена в классе Мир. (Fixed)
 # 5. Нельзя создать Мир без препятствий (Fixed)
 # 6. Локальная карта передается роботу из класса Мир, и робот довольствуется только тем, что ему передано (Done)
@@ -169,3 +159,14 @@ while True:
 
 
 # 13. Робот проходит сквозь препятствие, если движется по краю (fixed)
+# 14. Робот всегда должен знать свои глобальные координаты
+# 15. Робот должен двигаться по препятставию в форме П
+
+
+# 16. Сделать правильное заполнение локальной карты, чтобы всегда три линиии (Done)
+# 17. поправить moving. Всегда по локальной карте смотрим, доступность нужного направления и если оно свободно, то двигаемся в нем, если нет
+# то перебираем следующие. текущее направление и сначала проверяем свободно ли его. Задача - сохранять текущее направление
+# если текущее направление недоступно, то пытаемся повернуть
+# 18. При обходе препятствия запоминаем глобальные координаты, когда в первый раз встретил препятствие
+
+
