@@ -8,27 +8,19 @@ class Robot:  # Класс робота
         self.direction = 0
 
     def moving(self, global_x, global_y, local_map):  # функция движения робота
-        directions = [[0,-1],[1,0],[0,1],[-1,0]]
-        if self.direction == 0:
-            if local_map[0][1] != 0:
-                self.direction += 1
-        if self.direction == 1:
-            if local_map [1][2] != 0:
-                self.direction += 1
-        if self.direction == 2:
-            if local_map[2][1] != 0:
-                self.direction += 1
-        if self.direction == 3:
-            if local_map[1][0] != 0:
-                self.direction = 0
+        directions = [[0,-1],[-1,0],[0,1],[1,0]]
+        x_ch = directions[self.direction][0] + 1
+        y_ch = directions[self.direction][1] + 1
+        if local_map[y_ch][x_ch] != 0 :
+            self.direction += 1
+        if self.direction > 3:
+            self.direction = 0
         print(self.direction)
         print('___________________________________________________')
         for row in local_map:
             print(*row)
         print(directions[self.direction])
         return directions[self.direction] # возвращаем измененные значения координат на соответствующую дельту
-
-
 
 class World:  # Класс Мира
 
@@ -77,7 +69,7 @@ class World:  # Класс Мира
         for y in range(len(self.map)):
             for x in range(len(self.map[y])):
                 if x == c_x and y == c_y:  # если координаты сошлись на координатах робота, значит здесь робот
-                    print(1, end=' ')
+                    print('R', end=' ')
                 else:
                     print(self.map[y][x], end=' ')  # в остальных случаях рисуем просто поля Мира
             print()
@@ -143,8 +135,8 @@ while True:
     time.sleep(2)
 
 # Список замечаний:
-# 1. Робот добавляется на поле препятствия (условно поправил)
-# 2. Код останавливается, когда робот попадает на край препятствия
+# 1. Робот добавляется на поле препятствия ( поправил)
+# 2. Код останавливается, когда робот попадает на край препятствия (поправил)
 # 3. Отображается только 1 робот, остальные роботы не отображаются
 # 3/1. Нельзя отрисовать Мир без робота
 # 4. Препятствие захардкожена в классе Мир. (Fixed)
@@ -168,5 +160,8 @@ while True:
 # то перебираем следующие. текущее направление и сначала проверяем свободно ли его. Задача - сохранять текущее направление
 # если текущее направление недоступно, то пытаемся повернуть
 # 18. При обходе препятствия запоминаем глобальные координаты, когда в первый раз встретил препятствие
+
+
+# Вернуться к исходному заданию и подумать как это реализовать
 
 
