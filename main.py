@@ -1,5 +1,3 @@
-import time
-
 
 class Robot:  # Класс робота
 
@@ -29,18 +27,13 @@ class Robot:  # Класс робота
                 self.direction = 0
             x_ch = directions[self.direction][0] + 1
             y_ch = directions[self.direction][1] + 1
-        print(self.direction)
-        print('___________________________________________________')
-        for row in local_map:
-            print(*row)
-        print(directions[self.direction])
         return directions[self.direction] # возвращаем измененные значения координат на соответствующую дельту
 class World:  # Класс Мира
 
     def __init__(self, width, length, obstacle=[]):
         self.map = self.create_world(width, length, obstacle)
         self.robot_list = []
-
+        self.field = []
 
     def create_world(self, width, length, obstacle):
         self.width = width
@@ -50,21 +43,20 @@ class World:  # Класс Мира
             for x in range(width):
                 if len(obstacle) != 0:
                     if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:  # рисуем препятствие
-                        world[y][x] = 'X'  # препятствие у нас обозначено буквой х
+                        world[y][x] = 2  # препятствие у нас обозначено 2
 
 
-        world[2][2] = 'X'
-        world[3][2] = 'X'
-        world[4][2] = 'X'
-        world[5][2] = 'X'
-        world[6][2] = 'X'
-        world[2][4] = 'X'
-        world[3][4] = 'X'
-        world[4][4] = 'X'
-        world[5][4] = 'X'
-        world[6][4] = 'X'
-        world[2][3] = 'X'
-
+        world[2][2] = 2
+        world[3][2] = 2
+        world[4][2] = 2
+        world[5][2] = 2
+        world[6][2] = 2
+        world[2][4] = 2
+        world[3][4] = 2
+        world[4][4] = 2
+        world[5][4] = 2
+        world[6][4] = 2
+        world[2][3] = 2
 
         return world
 
@@ -78,15 +70,18 @@ class World:  # Класс Мира
 
     def draw_map(self):  # Класс рисования Мира
         for i, j in enumerate(self.robot_list):
+            self.field = []
             c_y = self.robot_list[i][1]  # координата робота у
             c_x = self.robot_list[i][2]  # координата робота х
             for y in range(len(self.map)):
+                row = []
                 for x in range(len(self.map[y])):
                     if x == c_x and y == c_y:  # если координаты сошлись на координатах робота, значит здесь робот
-                        print('R', end=' ')
+                        row.append(1)
                     else:
-                        print(self.map[y][x], end=' ')  # в остальных случаях рисуем просто поля Мира
-                print()
+                        row.append(self.map[y][x])
+                self.field.append(row)
+        return self.field
 
     def get_robot_list(self):  # функция, чтобы получить список всех роботов
         return self.robot_list
@@ -99,7 +94,6 @@ class World:  # Класс Мира
             # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
             r[1] += d_y  # Передаем новое значение у
             r[2] += d_x  # передаем новое значение х
-            print(r[1],r[2])
             if r[1] < 0:
                 r[1] = 0
             if r[2] < 0:
@@ -113,10 +107,9 @@ class World:  # Класс Мира
 
 
     def determine_robot_position(self, robot_num):
-        robot_map = [['X','X','X'],['X','X','X'],['X','X','X']]
-        # Сделать так, чтобы граница карты предствлялась как препятствие и через for заполняем клеточки относительно положения робота
-        global_map = world1.map  # запрашиваем глобальную карту
-        robot = world1.get_robot_list()[robot_num]  # запрашиваем список роботов, откуда возьмем информацию о нужном нам роботе
+        robot_map = [[2,2,2],[2,2,2],[2,2,2]]
+        global_map = self.map  # запрашиваем глобальную карту
+        robot = self.robot_list[robot_num]  # запрашиваем список роботов, откуда возьмем информацию о нужном нам роботе
         r_x = robot[2]
         r_y = robot[1]
         for y in range(3):
@@ -132,26 +125,13 @@ class World:  # Класс Мира
                 if g_y >= self.length:
                     continue
                 robot_map[y][x] = global_map[g_y][g_x]
-                robot_map[1][1] = 'R'
+                robot_map[1][1] = 1
         return robot_map
 
 
-world1 = World(10, 10)
-world1.add_robot(9,4, world1)
-world1.add_robot(9,9, world1)
-world1.get_robot_list()
-print()
-while True:
-    print(world1.get_robot_list())
-    world1.draw_map()
-    world1.step()
-    world1.get_robot_list()
-    print()
-    time.sleep(2)
 
 # Список замечаний:
 # Поправить отрисовку нескольких роботов
-# аучить робота ходить по диагонале
-
-
+# Научить робота ходить по диагонале
+# Подумать над рисовательным фреймоворком
 # Распутать Х и У
