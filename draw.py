@@ -4,6 +4,8 @@ import main
 
 world1 = main.World(10, 10)
 world1.add_robot(9,4, world1)
+world1.add_robot(9,6, world1)
+
 
 plt.ion() # обновление графика в реальном времени
 fig, ax = plt.subplots() # создаем рисунок и координатную плоскость
