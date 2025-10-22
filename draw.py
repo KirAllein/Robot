@@ -3,15 +3,18 @@ import matplotlib.animation as animation
 import main
 
 world1 = main.World(10, 10)
-world1.add_robot(9,4, world1)
-world1.add_robot(9,6, world1)
+world1.add_robot(9,3, world1)
+world1.add_robot(7,3, world1)
+world1.add_robot(5,3, world1)
+
+
 
 
 plt.ion() # обновление графика в реальном времени
 fig, ax = plt.subplots() # создаем рисунок и координатную плоскость
 frames = [] # сюда мобираем каждый кадр
 
-for i in range(35):
+for i in range(45):
     world1.step() # Вызов шага, чтобы изменить положение робота
     img = ax.imshow(world1.draw_map(), cmap='Blues', animated = True) # преобразование матрицы в картинку
     frames.append([img]) # сохраняем кадр

@@ -1,3 +1,4 @@
+import copy
 class Robot:  # Класс робота
 
     def __init__(self):
@@ -8,6 +9,7 @@ class Robot:  # Класс робота
 
     def moving(self, global_x, global_y, local_map):  # функция движения робота
         directions = [[0, -1], [-1, 0], [0, 1], [1, 0]]
+        count = 0
         if self.robot_met_obstacle:
             if global_x == self.obstacle_coordination[1] and global_y == self.obstacle_coordination[0]:
                 return [0, 0]
@@ -26,6 +28,9 @@ class Robot:  # Класс робота
                 self.direction = 0
             x_ch = directions[self.direction][0] + 1
             y_ch = directions[self.direction][1] + 1
+            count += 1
+            if count >= 10:
+                return [0,0]
         return directions[self.direction]  # возвращаем измененные значения координат на соответствующую дельту
 
 
@@ -34,7 +39,7 @@ class World:  # Класс Мира
     def __init__(self, width, length, obstacle=[]):
         self.map = self.create_world(width, length, obstacle)
         self.robot_list = []
-        self.field = []
+        self.field = self.draw_map()
 
     def create_world(self, width, length, obstacle):
         self.width = width
@@ -46,18 +51,17 @@ class World:  # Класс Мира
                     if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:  # рисуем препятствие
                         world[y][x] = 2  # препятствие у нас обозначено 2
 
-        world[2][2] = 2
-        world[2][3] = 2
-        world[2][4] = 2
-        world[2][5] = 2
-        world[3][2] = 2
-        world[3][3] = 2
-        world[3][4] = 2
-        world[3][5] = 2
-        world[4][2] = 2
-        world[4][3] = 2
-        world[4][4] = 2
-        world[4][5] = 2
+        world[2][2] = 1
+        world[2][3] = 1
+        world[2][4] = 1
+        world[3][2] = 1
+        world[3][4] = 1
+        world[4][4] = 1
+        world[4][2] = 1
+
+
+        # world[4][4] = 1
+        # world[4][5] = 1
 
         return world
 
@@ -69,16 +73,11 @@ class World:  # Класс Мира
             print('ERROR')
 
     def draw_map(self):  # Класс рисования Мира
-        self.field = []
-        for y in range(len(self.map)):
-            row = []
-            for x in range(len(self.map[y])):
-                robot_here = any((r[1]== y and r[2] == x) for r in self.robot_list)
-                if robot_here:  # если координаты сошлись на координатах робота, значит здесь робот
-                    row.append(1)
-                else:
-                    row.append(self.map[y][x])
-            self.field.append(row)
+        self.field = copy.deepcopy(self.map)
+        for e, r in enumerate(self.robot_list):
+            y = r[1]
+            x= r[2]
+            self.field[y][x] = 2+e
         return self.field
 
     def get_robot_list(self):  # функция, чтобы получить список всех роботов
@@ -88,6 +87,7 @@ class World:  # Класс Мира
         for i, r in enumerate(self.robot_list):  # обращаемя к списку роботов
             y = r[1]  # изначальна координата у
             x = r[2]  # значальна координата х
+            self.field = self.draw_map()
             d_x, d_y = r[0].moving(x, y, self.determine_robot_position(i))  # Робот принимает решение о движении
             # Сравниваем координаты робота и размеры Мира, чтобы не выйти за его пределы
             r[1] += d_y  # Передаем новое значение у
@@ -100,12 +100,12 @@ class World:  # Класс Мира
                 r[1] = self.length - 1
             if r[2] >= self.width:
                 r[2] = self.width - 1  # Не даем роботу выйти за края
-            if self.map[r[1]][r[2]] != 0:
+            if self.field[r[1]][r[2]] != 0:
                 r[1], r[2] = y, x
 
     def determine_robot_position(self, robot_num):
         robot_map = [[2, 2, 2], [2, 2, 2], [2, 2, 2]]
-        global_map = self.map  # запрашиваем глобальную карту
+        global_map = self.field  # запрашиваем глобальную карту
         robot = self.robot_list[robot_num]  # запрашиваем список роботов, откуда возьмем информацию о нужном нам роботе
         r_x = robot[2]
         r_y = robot[1]
@@ -126,7 +126,6 @@ class World:  # Класс Мира
         return robot_map
 
 # Список замечаний:
-# Поправить отрисовку нескольких роботов
 # Научить робота ходить по диагонале
-# Подумать над рисовательным фреймоворком
 # Распутать Х и У
+# Нормлаьная рисовалка карта, чтобы можно загружать из paint
