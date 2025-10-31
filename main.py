@@ -1,4 +1,9 @@
 import copy
+
+import parse_image
+from parse_image import Parse
+
+
 class Robot:  # Класс робота
 
     def __init__(self):
@@ -30,15 +35,31 @@ class Robot:  # Класс робота
             y_ch = directions[self.direction][1] + 1
             count += 1
             if count >= 10:
-                return [0,0]
+                return [0, 0]
         return directions[self.direction]  # возвращаем измененные значения координат на соответствующую дельту
 
 
 class World:  # Класс Мира
 
-    def __init__(self, width, length, obstacle=[]):
-        self.map = self.create_world(width, length, obstacle)
+    def create_from_map(self, image):
+        parser = parse_image.Parse(image)
+        self.width = parser.width
+        self.length = parser.height
+        field = parser.parse_image()
+        self.map = [[0] * self.width for _ in range(self.length)]  # создаем поле размерами ширина х высота
+        for y in range(self.length):
+            for x in range(self.width):
+                if field[x][y] == 1 :
+                    self.add_robot(y,x)
+                else:
+                    self.map[y][x] = field[x][y]
+
+    def __init__(self, width=None, length=None, obstacle=[], map=None):
         self.robot_list = []
+        if map:
+            self.create_from_map(map)
+        else:
+            self.map = self.create_world(width, length, obstacle)
         self.field = self.draw_map()
 
     def create_world(self, width, length, obstacle):
@@ -48,24 +69,24 @@ class World:  # Класс Мира
         for y in range(length):
             for x in range(width):
                 if len(obstacle) != 0:
-                    if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][1]:  # рисуем препятствие
+                    if obstacle[0][0] <= x <= obstacle[1][0] and obstacle[0][1] <= y <= obstacle[2][
+                        1]:  # рисуем препятствие
                         world[y][x] = 2  # препятствие у нас обозначено 2
 
-        world[2][2] = 1
-        world[2][3] = 1
-        world[2][4] = 1
-        world[3][2] = 1
-        world[3][4] = 1
-        world[4][4] = 1
-        world[4][2] = 1
-
+        # world[2][2] = 1
+        # world[2][3] = 1
+        # world[2][4] = 1
+        # world[3][2] = 1
+        # world[3][4] = 1
+        # world[4][4] = 1
+        # world[4][2] = 1
 
         # world[4][4] = 1
         # world[4][5] = 1
 
         return world
 
-    def add_robot(self, y, x, world_name):
+    def add_robot(self, y, x):
         robot = [Robot(), y, x]  # добавляем робота в Мир
         if self.map[y][x] == 0:  # проверка свободна ли клетка, куда хотим добавить робота
             self.robot_list.append(robot)
@@ -76,8 +97,8 @@ class World:  # Класс Мира
         self.field = copy.deepcopy(self.map)
         for e, r in enumerate(self.robot_list):
             y = r[1]
-            x= r[2]
-            self.field[y][x] = 2+e
+            x = r[2]
+            self.field[y][x] = 2 + e
         return self.field
 
     def get_robot_list(self):  # функция, чтобы получить список всех роботов
@@ -128,4 +149,4 @@ class World:  # Класс Мира
 # Список замечаний:
 # Научить робота ходить по диагонале
 # Распутать Х и У
-# Нормлаьная рисовалка карта, чтобы можно загружать из paint
+# Нормлаьная рисовалка карты, чтобы можно загружать из paint

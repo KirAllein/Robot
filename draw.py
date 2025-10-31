@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import main
+from PIL import Image
 
-world1 = main.World(10, 10)
-world1.add_robot(9,3, world1)
-world1.add_robot(7,3, world1)
-world1.add_robot(5,3, world1)
+
+world1 = main.World(map='map.bmp')
+# world1.add_robot(9,3, world1)
+# world1.add_robot(7,3, world1)
+# world1.add_robot(5,3, world1)
 
 
 
