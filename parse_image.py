@@ -1,5 +1,4 @@
 from PIL import Image
-import webcolors
 
 
 class Parse:
@@ -7,11 +6,11 @@ class Parse:
     def __init__(self, image):
         self.map_image = Image.open(image)
         self.pixels = self.map_image.load()
-        self.width, self.height = self.map_image.size
+        self.width, self.length = self.map_image.size
 
     def parse_image(self):
         field = []
-        for y in range(self.height):
+        for y in range(self.length):
             row = [0] * self.width
             print()
             for x in range(self.width):
@@ -24,6 +23,5 @@ class Parse:
                     row[x] = 1
             field.append(row)
         return field
-
 
 # разберись как оно работает. Написать комментарии
